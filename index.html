@@ -5,50 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vue.js Todo app</title>
     <script src="https://unpkg.com/vue/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <div id="app">
+  <body class="bg-indigo-700 m-5">
+    <div id="app" class="p-5 w-full h-96 bg-slate-100 rounded-xl">
+      <h1
+        class="flex justify-center text-5xl font-mono underline drop-shadow-2xl italic pointer-events-none"
+      >
+        To-Do
+      </h1>
       <br />
-      <input v-model="input" placeholder="Add a new task..." />
-      <button @click="addnewTask">Add to list</button>
+      <div class="flex justify-center">
+        <input
+          class="bg-indigo-700 text-slate-100 transition-all hover:ease-in-out p-3 rounded-full ring-0"
+          v-model="input"
+          placeholder="Add a new task..."
+        />
+        <button
+          class="m-2 p-3 bg-blue-600 flex hover:bg-red-600 text-slate-100 rounded hover:ring-red-600 hover:ring-4 transition hover:rounded-none"
+          @click="addnewTask"
+        >
+          Add to list
+        </button>
+      </div>
       <br />
       <ul>
-        <li v-for="task in tasks">
+        <li class="text-lg" v-for="task in tasks">
           <input type="checkbox" v-model="task.completed" />
-          {{ task.text }}
-          <button @click="deleteTask(task.id)">Delete</button>
+          <a class="m-2">{{ task.text }}</a>
+          <button
+            class="text-slate-100 bg-red-600 hover:ring-4 rounded-full px-2 ring-red-600 transition"
+            @click="deleteTask(task.id)"
+          >
+            Delete
+          </button>
         </li>
       </ul>
     </div>
+
     <script type="module">
-      import * as uuid from 'https://esm.sh/uuid@9.0.1';
-      const { ref, createApp } = Vue;
+      import * as uuid from "https://esm.sh/uuid@9.0.1";
+      const { ref, createApp, onMounted } = Vue;
       createApp({
         setup() {
           let tasks = ref([]);
-          let input = ref('');
+          let input = ref("");
+
           function addnewTask() {
             tasks.value.push({
               id: uuid.v4(),
               text: input.value,
               completed: false,
             });
-            input.value = '';
+            input.value = "";
+            save();
           }
 
           function deleteTask(id) {
             const index = tasks.value.findIndex((task) => task.id === id);
             tasks.value.splice(index, 1);
+            localStorage.setItem("tasks", tasks.value)
           }
+
+          function save() {
+            let string = JSON.stringify(tasks.value);
+            localStorage.setItem("tasks", string);
+          }
+
+          function load() {
+            tasks.value = JSON.parse(localStorage.getItem("tasks")) || [];
+          }
+
+          onMounted(() => {
+            load();
+          });
 
           return {
             tasks,
             input,
             addnewTask,
             deleteTask,
+            save,
           };
         },
-      }).mount('#app');
+      }).mount("#app")
+
     </script>
+</script>
   </body>
 </html>
