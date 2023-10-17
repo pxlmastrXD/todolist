@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue.js Todo app</title>
+    <script src="https://unpkg.com/vue/dist/vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <br />
+      <input v-model="input" placeholder="Add a new task..." />
+      <button @click="addnewTask">Add to list</button>
+      <br />
+      <ul>
+        <li v-for="task in tasks">
+          <input type="checkbox" v-model="task.completed" />
+          {{ task.text }}
+          <button @click="deleteTask(task.id)">Delete</button>
+        </li>
+      </ul>
+    </div>
+    <script type="module">
+      import * as uuid from 'https://esm.sh/uuid@9.0.1';
+      const { ref, createApp } = Vue;
+      createApp({
+        setup() {
+          let tasks = ref([]);
+          let input = ref('');
+          function addnewTask() {
+            tasks.value.push({
+              id: uuid.v4(),
+              text: input.value,
+              completed: false,
+            });
+            input.value = '';
+          }
+
+          function deleteTask(id) {
+            const index = tasks.value.findIndex((task) => task.id === id);
+            tasks.value.splice(index, 1);
+          }
+
+          return {
+            tasks,
+            input,
+            addnewTask,
+            deleteTask,
+          };
+        },
+      }).mount('#app');
+    </script>
+  </body>
+</html>
